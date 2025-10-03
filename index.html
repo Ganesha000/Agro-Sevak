@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agro Sevak – AI-Powered Farmer's Assistant</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-content">
+            <div class="loading-logo">
+                <i class="fas fa-leaf"></i>
+                <span>Agro Sevak</span>
+            </div>
+            <div class="loading-spinner"></div>
+            <p>Initializing AI Systems...</p>
+        </div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div class="settings-overlay" id="settingsOverlay"></div>
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-header">
+            <h3 class="settings-title">
+                <i class="fas fa-cog"></i>
+                <span class="translate" data-key="settings">Settings</span>
+            </h3>
+            <button class="settings-close" onclick="toggleSettings()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="settings-content">
+            <div class="settings-group" data-aos="fade-up" data-aos-delay="100">
+                <h4><i class="fas fa-language"></i> Language</h4>
+                <div class="settings-option">
+                    <label for="languageSelect">Select Language:</label>
+                    <select id="languageSelect" class="modern-select" onchange="changeLanguage(this.value)">
+                        <option value="en">English</option>
+                        <option value="hi">हिंदी (Hindi)</option>
+                        <option value="mr">मराठी (Marathi)</option>
+                        <option value="gu">ગુજરાતી (Gujarati)</option>
+                        <option value="ta">தமிழ் (Tamil)</option>
+                        <option value="te">తెలుగు (Telugu)</option>
+                        <option value="kn">ಕನ್ನಡ (Kannada)</option>
+                        <option value="ml">മലയാളം (Malayalam)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="settings-group" data-aos="fade-up" data-aos-delay="200">
+                <h4><i class="fas fa-palette"></i> Appearance</h4>
+                <div class="settings-option">
+                    <label for="themeSelect">Theme:</label>
+                    <select id="themeSelect" class="modern-select" onchange="changeTheme(this.value)">
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                        <option value="system">System Default</option>
+                    </select>
+                </div>
+                <div class="settings-option">
+                    <label for="fontSize">Font Size:</label>
+                    <select id="fontSize" class="modern-select" onchange="changeFontSize(this.value)">
+                        <option value="small">Small</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="large">Large</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="settings-group" data-aos="fade-up" data-aos-delay="300">
+                <h4><i class="fas fa-bell"></i> Notifications</h4>
+                <div class="settings-option">
+                    <label for="notifications">Enable Notifications:</label>
+                    <div class="modern-toggle">
+                        <input type="checkbox" id="notifications" checked>
+                        <span class="toggle-slider"></span>
+                    </div>
+                </div>
+                <div class="settings-option">
+                    <label for="notificationSound">Notification Sound:</label>
+                    <div class="modern-toggle">
+                        <input type="checkbox" id="notificationSound" checked>
+                        <span class="toggle-slider"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="btn-primary modern-btn" onclick="saveSettings()" data-aos="fade-up" data-aos-delay="400">
+                <i class="fas fa-save"></i>
+                <span>Save Settings</span>
+                <div class="btn-ripple"></div>
+            </button>
+        </div>
+    </div>
+
+    <!-- Authentication Modal -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal-content auth-modal" data-aos="zoom-in">
+            <button class="modal-close" onclick="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <h2 id="authTitle">Welcome Back</h2>
+                <p id="authSubtitle">Sign in to access your personalized dashboard</p>
+            </div>
+            
+            <form id="authForm" class="auth-form">
+                <div class="form-group">
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" id="email" placeholder="Email Address" required>
+                        <span class="input-underline"></span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="password" placeholder="Password" required>
+                        <span class="input-underline"></span>
+                    </div>
+                </div>
+                
+                <div class="form-group" id="confirmPasswordGroup" style="display: none;">
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="confirmPassword" placeholder="Confirm Password">
+                        <span class="input-underline"></span>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-primary auth-btn modern-btn">
+                    <span id="authButtonText">Sign In</span>
+                    <div class="btn-ripple"></div>
+                </button>
+                
+                <div class="auth-switch">
+                    <span id="authSwitchText">Don't have an account?</span>
+                    <button type="button" id="authSwitchBtn" onclick="switchAuthMode()">Sign Up</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar glass-effect" id="navbar">
+        <div class="nav-container">
+            <div class="logo" data-aos="fade-right">
+                <i class="fas fa-leaf logo-icon"></i>
+                <span class="logo-text translate" data-key="appName">Agro Sevak</span>
+                <div class="logo-glow"></div>
+            </div>
+            
+            <div class="nav-links" id="navLinks">
+                <a href="#features" class="nav-link translate" data-key="features" data-aos="fade-down" data-aos-delay="100">
+                    <span>Features</span>
+                    <div class="nav-underline"></div>
+                </a>
+                <a href="#about" class="nav-link translate" data-key="about" data-aos="fade-down" data-aos-delay="200">
+                    <span>About</span>
+                    <div class="nav-underline"></div>
+                </a>
+                <a href="#tools" class="nav-link translate" data-key="tools" data-aos="fade-down" data-aos-delay="300">
+                    <span>Tools</span>
+                    <div class="nav-underline"></div>
+                </a>
+                <a href="#contact" class="nav-link translate" data-key="contact" data-aos="fade-down" data-aos-delay="400">
+                    <span>Contact</span>
+                    <div class="nav-underline"></div>
+                </a>
+            </div>
+            
+            <div class="nav-actions" data-aos="fade-left">
+                <button class="btn-icon" onclick="toggleSettings()" title="Settings">
+                    <i class="fas fa-cog"></i>
+                    <div class="btn-ripple"></div>
+                </button>
+                
+                <div id="authButtons">
+                    <button class="btn-outline modern-btn" onclick="showAuthModal('login')">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span class="translate" data-key="login">Login</span>
+                        <div class="btn-ripple"></div>
+                    </button>
+                    <button class="btn-primary modern-btn" onclick="showAuthModal('signup')">
+                        <i class="fas fa-user-plus"></i>
+                        <span class="translate" data-key="signup">Sign Up</span>
+                        <div class="btn-ripple"></div>
+                    </button>
+                </div>
+                
+                <div class="user-profile glass-effect" id="userProfile" style="display: none;">
+                    <div class="user-avatar" id="userAvatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-info">
+                        <span class="user-name" id="userName">Farmer</span>
+                        <span class="user-status">Online</span>
+                    </div>
+                    <button class="btn-icon logout-btn" onclick="logout()" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-bg-layers">
+            <div class="hero-bg-layer" style="background-image: url('https://pixabay.com/get/ga67ff07930c76d82481a3e0c8e15cd4fc3d3b583e3979819506a167de5d8e81239f57afc91c5722923564fdb572af41fdf36ff78711bfa3e870e1fbd7442635c_1280.jpg');" data-speed="0.2"></div>
+            <div class="hero-bg-layer" style="background-image: url('https://pixabay.com/get/gf7bf4661f62a7f77eca51c82672ad8e8eac1fea781e8ff20a06514f8e522cb5b908faaddfc2d30ab818152c7de86f3d89b23e32aeb2302fe8dea9d1027e03e3e_1280.jpg');" data-speed="0.5"></div>
+        </div>
+        
+        <div class="hero-overlay"></div>
+        
+        <div class="hero-content">
+            <div class="hero-text" data-aos="fade-up" data-aos-duration="1000">
+                <h1 class="hero-title translate" data-key="heroTitle">
+                    AI-Powered Agricultural Assistant for Modern Farmers
+                </h1>
+                <p class="hero-subtitle translate" data-key="heroText">
+                    Agro Sevak combines cutting-edge technology with agricultural expertise to help you maximize your crop yield and minimize risks.
+                </p>
+                
+                <div class="hero-stats" data-aos="fade-up" data-aos-delay="300">
+                    <div class="stat-item">
+                        <div class="stat-number" data-target="10000">0</div>
+                        <div class="stat-label">Farmers Served</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-target="95">0</div>
+                        <div class="stat-label">AI Accuracy</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-target="24">0</div>
+                        <div class="stat-label">Hours Support</div>
+                    </div>
+                </div>
+                
+                <div class="hero-buttons" data-aos="fade-up" data-aos-delay="500">
+                    <button class="btn-primary hero-btn modern-btn pulse-animation" onclick="showAuthModal('signup')">
+                        <i class="fas fa-rocket"></i>
+                        <span class="translate" data-key="getStarted">Get Started</span>
+                        <div class="btn-ripple"></div>
+                    </button>
+                    <button class="btn-outline hero-btn modern-btn" onclick="scrollToSection('tools')">
+                        <i class="fas fa-tools"></i>
+                        <span class="translate" data-key="exploreTools">Explore Tools</span>
+                        <div class="btn-ripple"></div>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="hero-visual" data-aos="fade-left" data-aos-delay="700">
+                <div class="floating-cards">
+                    <div class="floating-card" data-aos="flip-left" data-aos-delay="800">
+                        <i class="fas fa-robot"></i>
+                        <span>AI Detection</span>
+                    </div>
+                    <div class="floating-card" data-aos="flip-left" data-aos-delay="1000">
+                        <i class="fas fa-cloud-sun"></i>
+                        <span>Weather AI</span>
+                    </div>
+                    <div class="floating-card" data-aos="flip-left" data-aos-delay="1200">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Market Analytics</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="hero-scroll-indicator" data-aos="fade-up" data-aos-delay="1500">
+            <div class="scroll-icon">
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <span>Discover More</span>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features section-padding" id="features">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <div class="section-badge">
+                    <i class="fas fa-star"></i>
+                    <span>Why Choose Us</span>
+                </div>
+                <h2 class="section-title translate" data-key="whyChoose">
+                    Why Choose Agro Sevak?
+                </h2>
+                <p class="section-subtitle">
+                    Experience the future of farming with our AI-powered solutions designed specifically for modern agriculture.
+                </p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card glass-effect" data-aos="fade-up" data-aos-delay="100">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
+                        <div class="icon-glow"></div>
+                    </div>
+                    <div class="feature-content">
+                        <h3 class="translate" data-key="feature1Title">AI Disease Detection</h3>
+                        <p class="translate" data-key="feature1Text">
+                            Our advanced machine learning models can identify plant diseases with over 95% accuracy just from a photo of your crop.
+                        </p>
+                        <div class="feature-stats">
+                            <div class="stat">
+                                <span class="stat-number">95%</span>
+                                <span class="stat-label">Accuracy</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-number">3s</span>
+                                <span class="stat-label">Detection Time</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="feature-bg">
+                        <img src="https://pixabay.com/get/gdcd1569436e4768f574f90d2304e8026cd0bcb5b815832c2c9b15140eee77a372fbed2221df615fac8884210adb81064daef4a4cf6f337b27e4f864629ff0090_1280.jpg" alt="Disease Detection">
+                    </div>
+                </div>
+                
+                <div class="feature-card glass-effect" data-aos="fade-up" data-aos-delay="200">
+                    <div class="feature-icon">
+                        <i class="fas fa-cloud-sun-rain"></i>
+                        <div class="icon-glow"></div>
+                    </div>
+                    <div class="feature-content">
+                        <h3 class="translate" data-key="feature2Title">Smart Weather Alerts</h3>
+                        <p class="translate" data-key="feature2Text">
+                            Get hyper-local weather forecasts and alerts tailored to your specific crops and location.
+                        </p>
+                        <div class="feature-stats">
+                            <div class="stat">
+                                <span class="stat-number">24/7</span>
+                                <span class="stat-label">Monitoring</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-number">1km</span>
+                                <span class="stat-label">Precision</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="feature-bg">
+                        <img src="https://pixabay.com/get/g9166cfb8cc65cc36bbde1c5696a44b9fbf07108da60e7884737ad83c60f61d9497ba91fbfe3d4639798d7dc2077e8b1d7f26b437eabceea90347ac6a726e9f8f_1280.jpg" alt="Weather Monitoring">
+                    </div>
+                </div>
+                
+                <div class="feature-card glass-effect" data-aos="fade-up" data-aos-delay="300">
+                    <div class="feature-icon">
+                        <i class="fas fa-rupee-sign"></i>
+                        <div class="icon-glow"></div>
+                    </div>
+                    <div class="feature-content">
+                        <h3 class="translate" data-key="feature3Title">Real-time Market Prices</h3>
+                        <p class="translate" data-key="feature3Text">
+                            Access up-to-date mandi prices across India to get the best value for your produce.
+                        </p>
+                        <div class="feature-stats">
+                            <div class="stat">
+                                <span class="stat-number">500+</span>
+                                <span class="stat-label">Markets</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-number">Live</span>
+                                <span class="stat-label">Updates</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="feature-bg">
+                        <img src="https://pixabay.com/get/g4c932bcbd0de55263995dbc8d3f0ccd5231cb6e439a651b002044550ce948617376d974e8e3ce2c49db194e6b21f1b8195436029af68be4c7cf4ccac66556168_1280.jpg" alt="Market Prices">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tools Section -->
+    <section class="tools section-padding" id="tools">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <div class="section-badge">
+                    <i class="fas fa-tools"></i>
+                    <span>AI Tools</span>
+                </div>
+                <h2 class="section-title translate" data-key="agriTools">
+                    Agricultural AI Tools
+                </h2>
+                <p class="section-subtitle">
+                    Powerful AI-driven tools to revolutionize your farming experience and maximize productivity.
+                </p>
+            </div>
+            
+            <div class="tools-grid">
+                <!-- Disease Detection Tool -->
+                <div class="tool-card glass-effect" data-aos="fade-up" data-aos-delay="100">
+                    <div class="tool-header">
+                        <div class="tool-icon">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <div class="tool-info">
+                            <h3 class="translate" data-key="scanLeaf">Plant Disease Scanner</h3>
+                            <p>Upload or capture plant images for instant AI analysis</p>
+                        </div>
+                        <div class="tool-status">
+                            <div class="status-indicator active"></div>
+                            <span>Ready</span>
+                        </div>
+                    </div>
+                    
+                    <div class="tool-content">
+                        <div class="upload-area" id="uploadArea">
+                            <div class="upload-icon">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <p>Drag & drop your plant image here</p>
+                            <span>or</span>
+                            <button class="btn-outline upload-btn" onclick="triggerFileInput()">
+                                <i class="fas fa-folder-open"></i>
+                                Choose File
+                            </button>
+                            <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="analyzeDisease(event)">
+                        </div>
+                        
+                        <div class="image-preview" id="imagePreview" style="display: none;">
+                            <img id="previewImage" alt="Plant preview">
+                            <div class="preview-actions">
+                                <button class="btn-primary" onclick="processImage()">
+                                    <i class="fas fa-search"></i>
+                                    Analyze Plant Health
+                                </button>
+                                <button class="btn-outline" onclick="clearImage()">
+                                    <i class="fas fa-trash"></i>
+                                    Clear
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="analysis-result" id="diseaseResult" style="display: none;">
+                            <div class="result-header">
+                                <i class="fas fa-check-circle"></i>
+                                <h4>Analysis Complete</h4>
+                            </div>
+                            <div class="result-content" id="resultContent">
+                                <!-- Results will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Weather Tool -->
+                <div class="tool-card glass-effect" data-aos="fade-up" data-aos-delay="200">
+                    <div class="tool-header">
+                        <div class="tool-icon">
+                            <i class="fas fa-cloud-sun"></i>
+                        </div>
+                        <div class="tool-info">
+                            <h3 class="translate" data-key="getWeather">Weather Intelligence</h3>
+                            <p>Smart weather forecasts for optimal farming decisions</p>
+                        </div>
+                        <div class="tool-status">
+                            <div class="status-indicator active"></div>
+                            <span>Live</span>
+                        </div>
+                    </div>
+                    
+                    <div class="tool-content">
+                        <button class="tool-action-btn" onclick="getWeatherForecast()">
+                            <i class="fas fa-satellite"></i>
+                            <span>Get Weather Forecast</span>
+                            <div class="btn-ripple"></div>
+                        </button>
+                        
+                        <div class="weather-output" id="weatherOutput">
+                            <div class="weather-placeholder">
+                                <i class="fas fa-cloud"></i>
+                                <p>Click to get real-time weather data</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Market Intelligence Tool -->
+                <div class="tool-card glass-effect" data-aos="fade-up" data-aos-delay="300">
+                    <div class="tool-header">
+                        <div class="tool-icon">
+                            <i class="fas fa-chart-line"></i>
+                            <div class="icon-particles"></div>
+                        </div>
+                        <div class="tool-info">
+                            <h3 class="translate" data-key="viewMandi">Market Intelligence</h3>
+                            <p>AI-powered market analysis with location-based insights</p>
+                        </div>
+                        <div class="tool-status">
+                            <div class="status-indicator active pulse"></div>
+                            <span>Live AI</span>
+                        </div>
+                    </div>
+                    
+                    <div class="tool-content">
+                        <!-- Enhanced Search Interface -->
+                        <div class="market-search-container">
+                            <div class="search-controls">
+                                <div class="search-input-group">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" id="cropSearchInput" placeholder="Search for crops (e.g., wheat, rice, cotton...)" class="ai-search-input">
+                                    <div class="ai-indicator">
+                                        <i class="fas fa-brain"></i>
+                                        <span>AI</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="location-input-group">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <input type="text" id="locationSearchInput" placeholder="Enter location (state, district, mandi)" class="location-search-input">
+                                    <button class="location-detect-btn" onclick="detectUserLocation()" title="Use current location">
+                                        <i class="fas fa-crosshairs"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="search-actions">
+                                <button class="ai-search-btn" onclick="performAIMarketSearch()">
+                                    <i class="fas fa-robot"></i>
+                                    <span>AI Search</span>
+                                    <div class="btn-glow"></div>
+                                </button>
+                                
+                                <button class="quick-rates-btn" onclick="getMandiRates()">
+                                    <i class="fas fa-bolt"></i>
+                                    <span>Quick Rates</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Famous Crops Quick Access -->
+                        <div class="famous-crops-section">
+                            <h5><i class="fas fa-star"></i> Popular Crops</h5>
+                            <div class="crops-carousel">
+                                <div class="crop-card" onclick="searchCrop('wheat')" data-crop="wheat">
+                                    <div class="crop-image">
+                                        <img src="https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=150&h=150&fit=crop&crop=center" alt="Wheat">
+                                        <div class="crop-overlay">
+                                            <i class="fas fa-search-plus"></i>
+                                        </div>
+                                    </div>
+                                    <div class="crop-info">
+                                        <span class="crop-name">Wheat</span>
+                                        <span class="crop-season">Rabi</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="crop-card" onclick="searchCrop('rice')" data-crop="rice">
+                                    <div class="crop-image">
+                                        <img src="https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=150&h=150&fit=crop&crop=center" alt="Rice">
+                                        <div class="crop-overlay">
+                                            <i class="fas fa-search-plus"></i>
+                                        </div>
+                                    </div>
+                                    <div class="crop-info">
+                                        <span class="crop-name">Rice</span>
+                                        <span class="crop-season">Kharif</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="crop-card" onclick="searchCrop('cotton')" data-crop="cotton">
+                                    <div class="crop-image">
+                                        <img src="https://images.unsplash.com/photo-1445824060012-36bb8fcf04aa?w=150&h=150&fit=crop&crop=center" alt="Cotton">
+                                        <div class="crop-overlay">
+                                            <i class="fas fa-search-plus"></i>
+                                        </div>
+                                    </div>
+                                    <div class="crop-info">
+                                        <span class="crop-name">Cotton</span>
+                                        <span class="crop-season">Kharif</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="crop-card" onclick="searchCrop('sugarcane')" data-crop="sugarcane">
+                                    <div class="crop-image">
+                                        <img src="https://images.unsplash.com/photo-1579952363873-27d3bfad9c0d?w=150&h=150&fit=crop&crop=center" alt="Sugarcane">
+                                        <div class="crop-overlay">
+                                            <i class="fas fa-search-plus"></i>
+                                        </div>
+                                    </div>
+                                    <div class="crop-info">
+                                        <span class="crop-name">Sugarcane</span>
+                                        <span class="crop-season">Annual</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="crop-card" onclick="searchCrop('maize')" data-crop="maize">
+                                    <div class="crop-image">
+                                        <img src="https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=150&h=150&fit=crop&crop=center" alt="Maize">
+                                        <div class="crop-overlay">
+                                            <i class="fas fa-search-plus"></i>
+                                        </div>
+                                    </div>
+                                    <div class="crop-info">
+                                        <span class="crop-name">Maize</span>
+                                        <span class="crop-season">Both</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="crop-card" onclick="searchCrop('soybean')" data-crop="soybean">
+                                    <div class="crop-image">
+                                        <img src="https://images.unsplash.com/photo-1520637836862-4d197d17c735?w=150&h=150&fit=crop&crop=center" alt="Soybean">
+                                        <div class="crop-overlay">
+                                            <i class="fas fa-search-plus"></i>
+                                        </div>
+                                    </div>
+                                    <div class="crop-info">
+                                        <span class="crop-name">Soybean</span>
+                                        <span class="crop-season">Kharif</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mandi-output" id="mandiOutput">
+                            <div class="mandi-placeholder">
+                                <div class="placeholder-content">
+                                    <div class="floating-chart-icon">
+                                        <i class="fas fa-chart-bar"></i>
+                                        <div class="chart-particles"></div>
+                                    </div>
+                                    <h4>Smart Market Intelligence</h4>
+                                    <p>Search for specific crops or get quick market rates</p>
+                                    <div class="placeholder-stats">
+                                        <div class="stat-item">
+                                            <i class="fas fa-store"></i>
+                                            <span>500+ Markets</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <i class="fas fa-clock"></i>
+                                            <span>Real-time Data</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <i class="fas fa-brain"></i>
+                                            <span>AI Insights</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Voice Assistant Tool -->
+                <div class="tool-card glass-effect" data-aos="fade-up" data-aos-delay="400">
+                    <div class="tool-header">
+                        <div class="tool-icon">
+                            <i class="fas fa-microphone"></i>
+                        </div>
+                        <div class="tool-info">
+                            <h3 class="translate" data-key="startVoice">Voice Assistant</h3>
+                            <p>Ask questions and get instant farming advice</p>
+                        </div>
+                        <div class="tool-status">
+                            <div class="status-indicator"></div>
+                            <span>Ready</span>
+                        </div>
+                    </div>
+                    
+                    <div class="tool-content">
+                        <button class="tool-action-btn" id="voiceBtn" onclick="startVoiceAssistant()">
+                            <i class="fas fa-microphone"></i>
+                            <span>Start Voice Assistant</span>
+                            <div class="btn-ripple"></div>
+                        </button>
+                        
+                        <div class="voice-output" id="voiceOutput">
+                            <div class="voice-placeholder">
+                                <i class="fas fa-robot"></i>
+                                <p>Click to start voice interaction</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Crop Calendar Tool -->
+                <div class="tool-card glass-effect" data-aos="fade-up" data-aos-delay="500">
+                    <div class="tool-header">
+                        <div class="tool-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="tool-info">
+                            <h3 class="translate" data-key="getCalendar">Crop Calendar</h3>
+                            <p>Personalized farming schedule and recommendations</p>
+                        </div>
+                        <div class="tool-status">
+                            <div class="status-indicator active"></div>
+                            <span>Ready</span>
+                        </div>
+                    </div>
+                    
+                    <div class="tool-content">
+                        <button class="tool-action-btn" onclick="showLocationModal()">
+                            <i class="fas fa-seedling"></i>
+                            <span>Generate Crop Calendar</span>
+                            <div class="btn-ripple"></div>
+                        </button>
+                        
+                        <div class="calendar-output" id="chartOutput">
+                            <div class="calendar-placeholder">
+                                <i class="fas fa-calendar-check"></i>
+                                <p>Generate your personalized farming calendar</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Smart Alerts Tool -->
+                <div class="tool-card glass-effect" data-aos="fade-up" data-aos-delay="600">
+                    <div class="tool-header">
+                        <div class="tool-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <div class="tool-info">
+                            <h3 class="translate" data-key="smartAlerts">Smart Alerts</h3>
+                            <p>Proactive notifications for farming decisions</p>
+                        </div>
+                        <div class="tool-status">
+                            <div class="status-indicator active"></div>
+                            <span>Active</span>
+                        </div>
+                    </div>
+                    
+                    <div class="tool-content">
+                        <button class="tool-action-btn" onclick="showSmartAlerts()">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Check Smart Alerts</span>
+                            <div class="btn-ripple"></div>
+                        </button>
+                        
+                        <div class="alerts-output" id="alertsOutput">
+                            <div class="alerts-placeholder">
+                                <i class="fas fa-bell-slash"></i>
+                                <p>No active alerts at the moment</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about section-padding" id="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text" data-aos="fade-right">
+                    <div class="section-badge">
+                        <i class="fas fa-heart"></i>
+                        <span>Our Story</span>
+                    </div>
+                    <h2 class="section-title translate" data-key="aboutUs">About Agro Sevak</h2>
+                    
+                    <div class="about-section">
+                        <h3 class="translate" data-key="ourMission">Our Mission</h3>
+                        <p class="translate" data-key="missionText">
+                            Agro Sevak was founded with a simple mission: to empower farmers with technology that helps them make better decisions, increase yields, and improve their livelihoods. We believe that every farmer deserves access to the best agricultural knowledge and tools.
+                        </p>
+                    </div>
+                    
+                    <div class="about-section">
+                        <h3 class="translate" data-key="ourTechnology">Our Technology</h3>
+                        <p class="translate" data-key="technologyText">
+                            Using artificial intelligence, machine learning, and satellite data, we provide personalized recommendations for crop management, disease prevention, and optimal harvesting times. Our platform is designed specifically for Indian farming conditions.
+                        </p>
+                    </div>
+                    
+                    <div class="about-stats-grid">
+                        <div class="about-stat" data-aos="flip-up" data-aos-delay="100">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-number">10,000+</div>
+                                <div class="stat-label translate" data-key="farmersServed">Farmers Served</div>
+                            </div>
+                        </div>
+                        
+                        <div class="about-stat" data-aos="flip-up" data-aos-delay="200">
+                            <div class="stat-icon">
+                                <i class="fas fa-bullseye"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-number">95%</div>
+                                <div class="stat-label translate" data-key="accuracyRate">Detection Accuracy</div>
+                            </div>
+                        </div>
+                        
+                        <div class="about-stat" data-aos="flip-up" data-aos-delay="300">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-number">24/7</div>
+                                <div class="stat-label translate" data-key="supportAvailable">Support Available</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="about-visual" data-aos="fade-left">
+                    <div class="about-image-stack">
+                        <div class="about-image primary">
+                            <img src="https://pixabay.com/get/g4c932bcbd0de55263995dbc8d3f0ccd5231cb6e439a651b002044550ce948617376d974e8e3ce2c49db194e6b21f1b8195436029af68be4c7cf4ccac66556168_1280.jpg" alt="Farmer using technology">
+                        </div>
+                        <div class="about-image secondary">
+                            <img src="https://pixabay.com/get/ge6a3911eabf88473d1cad3bad58fd3689d9fcdf7599db7c8ba0918033f8fedf0e738908007dd5d98f7b39377c405d373850f0d2d6ce5ce47cc5376739c26fa1f_1280.jpg" alt="Modern farming technology">
+                        </div>
+                        <div class="about-image tertiary">
+                            <img src="https://pixabay.com/get/g547d94b115a9afee078d9eaf0842cfe90b1b4e84c36667ef7cb7600f2fe7088a2614b5661f44c015b49619b11cf17d4ceae08853a85cee9486504db0784f51a8_1280.jpg" alt="Crop monitoring">
+                        </div>
+                    </div>
+                    
+                    <div class="floating-elements">
+                        <div class="floating-element" data-aos="zoom-in" data-aos-delay="500">
+                            <i class="fas fa-brain"></i>
+                            <span>AI Powered</span>
+                        </div>
+                        <div class="floating-element" data-aos="zoom-in" data-aos-delay="700">
+                            <i class="fas fa-mobile-alt"></i>
+                            <span>Mobile First</span>
+                        </div>
+                        <div class="floating-element" data-aos="zoom-in" data-aos-delay="900">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Secure & Reliable</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Location Modal for Crop Calendar -->
+    <div class="modal-overlay" id="locationModal">
+        <div class="modal-content location-modal" data-aos="zoom-in">
+            <button class="modal-close" onclick="closeLocationModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div class="modal-header">
+                <div class="modal-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <h3 class="translate" data-key="personalizeCalendar">Personalize Your Crop Calendar</h3>
+                <p>Provide your location and crop details for customized recommendations</p>
+            </div>
+            
+            <form id="locationForm" class="location-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="stateSelect" class="translate" data-key="selectState">Select State</label>
+                        <select id="stateSelect" class="modern-select" required>
+                            <option value="">Choose State</option>
+                            <option value="madhya-pradesh">Madhya Pradesh</option>
+                            <option value="uttar-pradesh">Uttar Pradesh</option>
+                            <option value="rajasthan">Rajasthan</option>
+                            <option value="maharashtra">Maharashtra</option>
+                            <option value="karnataka">Karnataka</option>
+                            <option value="gujarat">Gujarat</option>
+                            <option value="andhra-pradesh">Andhra Pradesh</option>
+                            <option value="west-bengal">West Bengal</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="districtInput" class="translate" data-key="district">District</label>
+                        <input type="text" id="districtInput" placeholder="Enter your district" class="modern-input" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="soilSelect" class="translate" data-key="soilType">Soil Type</label>
+                        <select id="soilSelect" class="modern-select" required>
+                            <option value="" class="translate" data-key="selectSoil">Select Soil Type</option>
+                            <option value="alluvial" class="translate" data-key="alluvial">Alluvial Soil</option>
+                            <option value="black" class="translate" data-key="blackSoil">Black Soil (Regur)</option>
+                            <option value="red" class="translate" data-key="redSoil">Red Soil</option>
+                            <option value="laterite" class="translate" data-key="laterite">Laterite Soil</option>
+                            <option value="mountain" class="translate" data-key="mountain">Mountain Soil</option>
+                            <option value="desert" class="translate" data-key="desert">Desert Soil</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="cropSelect" class="translate" data-key="mainCrop">Main Crop</label>
+                        <select id="cropSelect" class="modern-select" required>
+                            <option value="" class="translate" data-key="selectCrop">Select Main Crop</option>
+                            <option value="wheat" class="translate" data-key="wheat">Wheat</option>
+                            <option value="rice" class="translate" data-key="rice">Rice</option>
+                            <option value="maize" class="translate" data-key="maize">Maize</option>
+                            <option value="sugarcane" class="translate" data-key="sugarcane">Sugarcane</option>
+                            <option value="cotton" class="translate" data-key="cotton">Cotton</option>
+                            <option value="soybean" class="translate" data-key="soybean">Soybean</option>
+                            <option value="pulses" class="translate" data-key="pulses">Pulses</option>
+                            <option value="oilseeds" class="translate" data-key="oilseeds">Oilseeds</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn-outline" onclick="closeLocationModal()">
+                        <span class="translate" data-key="cancel">Cancel</span>
+                    </button>
+                    <button type="submit" class="btn-primary modern-btn">
+                        <i class="fas fa-calendar-plus"></i>
+                        <span class="translate" data-key="generateCalendar">Generate Calendar</span>
+                        <div class="btn-ripple"></div>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer" id="contact">
+        <div class="footer-bg">
+            <div class="footer-layer" style="background-image: url('https://pixabay.com/get/g8b89f9c2957aa6015fa80a774d84586cfb13d7e55fbb948f8342a786b1a215f2416dba74579f5b18da5e01170185712827eaa3d00cc2eab8a745102e6f27788e_1280.jpg');"></div>
+        </div>
+        
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-main" data-aos="fade-up">
+                    <div class="footer-brand">
+                        <div class="footer-logo">
+                            <i class="fas fa-leaf"></i>
+                            <span class="translate" data-key="appName">Agro Sevak</span>
+                        </div>
+                        <p class="footer-description translate" data-key="footerDesc">
+                            Empowering farmers with AI technology to make informed decisions and maximize agricultural productivity.
+                        </p>
+                        <div class="social-links">
+                            <a href="#" class="social-link" data-aos="zoom-in" data-aos-delay="100">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="social-link" data-aos="zoom-in" data-aos-delay="200">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="#" class="social-link" data-aos="zoom-in" data-aos-delay="300">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a href="#" class="social-link" data-aos="zoom-in" data-aos-delay="400">
+                                <i class="fab fa-youtube"></i>
+                            </a>
+                            <a href="#" class="social-link" data-aos="zoom-in" data-aos-delay="500">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="footer-links" data-aos="fade-up" data-aos-delay="200">
+                        <div class="footer-column">
+                            <h4 class="translate" data-key="quickLinks">Quick Links</h4>
+                            <ul>
+                                <li><a href="#features" class="translate" data-key="features">Features</a></li>
+                                <li><a href="#about" class="translate" data-key="about">About</a></li>
+                                <li><a href="#tools" class="translate" data-key="tools">Tools</a></li>
+                                <li><a href="#contact" class="translate" data-key="contact">Contact</a></li>
+                                <li><a href="#" class="translate" data-key="privacy">Privacy Policy</a></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="footer-column">
+                            <h4>Tools & Services</h4>
+                            <ul>
+                                <li><a href="#tools">Disease Detection</a></li>
+                                <li><a href="#tools">Weather Forecast</a></li>
+                                <li><a href="#tools">Market Prices</a></li>
+                                <li><a href="#tools">Voice Assistant</a></li>
+                                <li><a href="#tools">Crop Calendar</a></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="footer-column">
+                            <h4 class="translate" data-key="contactUs">Contact Us</h4>
+                            <ul class="contact-info">
+                                <li>
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span class="translate" data-key="address">123 Farm Road, Agri Zone, India</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-phone"></i>
+                                    <span>+91 98765 43210</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-envelope"></i>
+                                    <span>contact@agrosevak.com</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-clock"></i>
+                                    <span>24/7 Support Available</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="footer-bottom" data-aos="fade-up" data-aos-delay="400">
+                    <div class="footer-divider"></div>
+                    <div class="footer-bottom-content">
+                        <p>&copy; 2024 Agro Sevak. <span class="translate" data-key="rightsReserved">All Rights Reserved</span></p>
+                        <div class="footer-badges">
+                            <span class="badge">AI Powered</span>
+                            <span class="badge">Secure</span>
+                            <span class="badge">24/7 Support</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Floating Action Button -->
+    <div class="fab-container">
+        <button class="fab main-fab" id="mainFab">
+            <i class="fas fa-plus"></i>
+        </button>
+        <div class="fab-options" id="fabOptions">
+            <button class="fab option-fab" onclick="showAuthModal('signup')" title="Get Started">
+                <i class="fas fa-rocket"></i>
+            </button>
+            <button class="fab option-fab" onclick="scrollToSection('tools')" title="AI Tools">
+                <i class="fas fa-robot"></i>
+            </button>
+            <button class="fab option-fab" onclick="toggleSettings()" title="Settings">
+                <i class="fas fa-cog"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div class="notification-container" id="notificationContainer"></div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="script.js"></script>
+    
+    <script>
+        // Initialize AOS animations
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true,
+            offset: 100
+        });
+        
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+    </script>
+</body>
+</html>
